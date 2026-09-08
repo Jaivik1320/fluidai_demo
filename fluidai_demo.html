@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMx — FluidAI Clinical Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8F9FB;--surface:#FFFFFF;--raised:#F1F3F7;--border:#E2E6EE;
+  --accent:#1B4F9C;--accent-dim:rgba(27,79,156,0.07);--accent-border:rgba(27,79,156,0.2);
+  --green:#059669;--green-dim:rgba(5,150,105,0.08);--green-border:rgba(5,150,105,0.2);
+  --amber:#D97706;--amber-dim:rgba(217,119,6,0.08);--amber-border:rgba(217,119,6,0.22);
+  --red:#DC2626;--red-dim:rgba(220,38,38,0.09);--red-border:rgba(220,38,38,0.2);
+  --purple:#7C3AED;--purple-dim:rgba(124,58,237,0.08);
+  --text:#111827;--text-mid:#6B7280;--text-dim:#9CA3AF;
+  --sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+
+.topbar{height:50px;background:var(--accent);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;}
+.logo{font-size:15px;font-weight:700;letter-spacing:-0.02em;color:white;}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-left:2px;}
+.tabs{display:flex;gap:1px;margin-left:16px;}
+.tab{padding:5px 13px;border-radius:5px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:all 0.12s;}
+.tab.active{background:rgba(255,255,255,0.15);color:white;font-weight:600;}
+.tab:hover:not(.active){background:rgba(255,255,255,0.08);color:white;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.ai-btn{padding:6px 13px;border-radius:5px;background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity 0.15s;}
+.ai-btn:hover{background:rgba(255,255,255,0.22);}
+
+.main{flex:1;display:flex;overflow:hidden;}
+.page{flex:1;overflow:hidden;display:none;}
+.page.active{display:flex;}
+
+.sidebar{width:196px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:10px 8px;overflow-y:auto;}
+.sl{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin:12px 8px 5px;display:block;}
+.sl:first-child{margin-top:0;}
+.slink{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text-mid);transition:all 0.12s;}
+.slink:hover{background:var(--raised);}
+.slink.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+.sbadge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:var(--red-dim);color:var(--red);margin-left:auto;border:1px solid var(--red-border);}
+
+.content{flex:1;overflow-y:auto;padding:18px 22px;}
+.page-title{font-size:17px;font-weight:700;letter-spacing:-0.02em;margin-bottom:3px;}
+.page-sub{font-size:11px;color:var(--text-dim);margin-bottom:18px;}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 14px;}
+.stat-label{font-size:10px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+.stat-val{font-family:var(--mono);font-size:19px;font-weight:700;line-height:1;margin-bottom:2px;}
+.stat-sub{font-size:10px;color:var(--text-dim);}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-bottom:14px;}
+.panel-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:12px;font-weight:700;}
+
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;padding:7px 14px;text-align:left;background:var(--raised);border-bottom:1px solid var(--border);}
+td{padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr{cursor:pointer;transition:background 0.1s;}
+tr:hover td{background:var(--raised);}
+.pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;display:inline-block;}
+.pill-green{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.pill-amber{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-border);}
+.pill-red{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border);}
+.pill-blue{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-border);}
+.pill-gray{background:var(--raised);color:var(--text-mid);border:1px solid var(--border);}
+
+.ai-panel{width:272px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;}
+.ai-header{padding:11px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.ai-title{font-size:12px;font-weight:700;flex:1;}
+.ai-scroll{flex:1;overflow-y:auto;padding:11px;}
+.ai-card{border-radius:7px;padding:9px 11px;margin-bottom:8px;font-size:11px;line-height:1.65;}
+.ai-card.info{background:var(--accent-dim);border:1px solid var(--accent-border);}
+.ai-card.info strong{color:var(--accent);}
+.ai-card.warn{background:var(--amber-dim);border:1px solid var(--amber-border);}
+.ai-card.warn strong{color:var(--amber);}
+.ai-card.crit{background:var(--red-dim);border:1px solid var(--red-border);}
+.ai-card.crit strong{color:var(--red);}
+.ai-action{padding:8px 11px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:11px;margin-bottom:7px;cursor:pointer;transition:background 0.1s;color:var(--accent);font-weight:500;}
+.ai-action:hover{background:var(--accent-dim);}
+
+.vital-row{display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid var(--border);}
+.vital-row:last-child{border-bottom:none;}
+.vital-name{font-size:11px;color:var(--text-mid);min-width:100px;}
+.vital-bar{flex:1;height:5px;background:var(--raised);border-radius:3px;overflow:hidden;}
+.vital-fill{height:100%;border-radius:3px;}
+.vital-val{font-family:var(--mono);font-size:12px;font-weight:600;min-width:60px;text-align:right;}
+.vital-unit{font-size:10px;color:var(--text-dim);min-width:30px;}
+
+.statusbar{height:24px;background:var(--accent);display:flex;align-items:center;padding:0 16px;gap:16px;flex-shrink:0;}
+.sb{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.6);}
+.demo-note{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.96);border:1px solid var(--border);color:var(--text-mid);border-radius:20px;padding:5px 14px;font-size:10px;z-index:200;white-space:nowrap;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.demo-note strong{color:var(--accent);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">CMx<span class="logo-sub"> · FluidAI Clinical Platform</span></div>
+  <div class="tabs">
+    <button class="tab active" onclick="show('monitoring',this)">Patient Monitoring</button>
+    <button class="tab" onclick="show('documentation',this)">AI Documentation</button>
+    <button class="tab" onclick="show('alerts',this)">Clinical Alerts</button>
+    <button class="tab" onclick="show('education',this)">Patient Education</button>
+  </div>
+  <div class="topbar-right">
+    <button class="ai-btn" onclick="toast('🤖','Running AI clinical analysis...')">✦ AI Assist</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- PATIENT MONITORING -->
+  <div class="page active" id="page-monitoring">
+    <div class="sidebar">
+      <span class="sl">Ward</span>
+      <div class="slink active">All Patients</div>
+      <div class="slink" onclick="toast('🔴','Showing critical patients')">Critical <div class="sbadge">2</div></div>
+      <div class="slink" onclick="toast('🟡','Showing watch patients')">Watch <div class="sbadge">3</div></div>
+      <div class="slink" onclick="toast('🟢','Showing stable patients')">Stable</div>
+      <span class="sl">Surgical Units</span>
+      <div class="slink" onclick="toast('🏥','General Surgery')">General Surgery</div>
+      <div class="slink" onclick="toast('🏥','GI Surgery')">GI Surgery</div>
+      <div class="slink" onclick="toast('🏥','Post-Op Recovery')">Post-Op Recovery</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Surgical Patient Monitoring</div>
+      <div class="page-sub">GI Surgery Ward · 12 patients · AI physiological monitoring active · 2 critical alerts</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Patients Monitored</div><div class="stat-val" style="color:var(--accent)">12</div><div class="stat-sub">continuous sensors active</div></div>
+        <div class="stat"><div class="stat-label">Critical Alerts</div><div class="stat-val" style="color:var(--red)">2</div><div class="stat-sub">require immediate review</div></div>
+        <div class="stat"><div class="stat-label">Watch Status</div><div class="stat-val" style="color:var(--amber)">3</div><div class="stat-sub">deterioration risk</div></div>
+        <div class="stat"><div class="stat-label">AI Accuracy</div><div class="stat-val" style="color:var(--green)">94%</div><div class="stat-sub">early detection rate</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Patient List — GI Surgery Ward</div><div style="font-size:11px;color:var(--accent);cursor:pointer" onclick="toast('✦ AI','Running deterioration risk assessment...')">✦ AI risk assessment</div></div>
+        <table>
+          <tr><th>Patient</th><th>Procedure</th><th>Post-Op Day</th><th>HR</th><th>Fluid Status</th><th>AI Status</th><th>Risk</th></tr>
+          <tr onclick="openPatient('P-4421')"><td><strong>P-4421</strong><br><span style="font-size:10px;color:var(--text-dim)">Room 12A</span></td><td>Right hemicolectomy</td><td>POD 2</td><td style="font-family:var(--mono);font-weight:600;color:var(--red)">118 bpm</td><td><span class="pill pill-red">Fluid deficit</span></td><td><span class="pill pill-red">⚠ CRITICAL</span></td><td style="font-family:var(--mono);font-weight:700;color:var(--red)">91%</td></tr>
+          <tr onclick="openPatient('P-4418')"><td><strong>P-4418</strong><br><span style="font-size:10px;color:var(--text-dim)">Room 9B</span></td><td>Low anterior resection</td><td>POD 4</td><td style="font-family:var(--mono);font-weight:600;color:var(--red)">104 bpm</td><td><span class="pill pill-amber">Borderline</span></td><td><span class="pill pill-red">⚠ CRITICAL</span></td><td style="font-family:var(--mono);font-weight:700;color:var(--red)">87%</td></tr>
+          <tr onclick="openPatient('P-4415')"><td><strong>P-4415</strong><br><span style="font-size:10px;color:var(--text-dim)">Room 7A</span></td><td>Sigmoid colectomy</td><td>POD 3</td><td style="font-family:var(--mono);font-weight:600;color:var(--amber)">96 bpm</td><td><span class="pill pill-amber">Watch</span></td><td><span class="pill pill-amber">⚡ WATCH</span></td><td style="font-family:var(--mono);font-weight:700;color:var(--amber)">62%</td></tr>
+          <tr onclick="openPatient('P-4412')"><td><strong>P-4412</strong><br><span style="font-size:10px;color:var(--text-dim)">Room 5B</span></td><td>Appendectomy</td><td>POD 1</td><td style="font-family:var(--mono);font-weight:600">74 bpm</td><td><span class="pill pill-green">Adequate</span></td><td><span class="pill pill-green">✓ STABLE</span></td><td style="font-family:var(--mono);font-weight:700;color:var(--green)">8%</td></tr>
+          <tr onclick="openPatient('P-4409')"><td><strong>P-4409</strong><br><span style="font-size:10px;color:var(--text-dim)">Room 3A</span></td><td>Cholecystectomy</td><td>POD 1</td><td style="font-family:var(--mono);font-weight:600">68 bpm</td><td><span class="pill pill-green">Adequate</span></td><td><span class="pill pill-green">✓ STABLE</span></td><td style="font-family:var(--mono);font-weight:700;color:var(--green)">5%</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Physiological Vitals — P-4421 (Real-time)</div><div style="font-size:10px;color:var(--red);font-weight:600">● CRITICAL</div></div>
+        <div>
+          ${[
+            {name:'Heart Rate',val:118,max:140,unit:'bpm',c:'var(--red)',pct:84},
+            {name:'Fluid Output',val:28,max:100,unit:'mL/hr',c:'var(--red)',pct:28},
+            {name:'MAP',val:62,max:120,unit:'mmHg',c:'var(--amber)',pct:52},
+            {name:'SpO2',val:97,max:100,unit:'%',c:'var(--green)',pct:97},
+            {name:'Temperature',val:37.8,max:40,unit:'°C',c:'var(--amber)',pct:70},
+          ].map(v=>`<div class="vital-row"><div class="vital-name">${v.name}</div><div class="vital-bar"><div class="vital-fill" style="width:${v.pct}%;background:${v.c}"></div></div><div class="vital-val" style="color:${v.c}">${v.val}</div><div class="vital-unit">${v.unit}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">CMx AI</div><div style="font-size:10px;color:var(--text-dim)">Live monitoring</div></div>
+      <div class="ai-scroll">
+        <div class="ai-card crit">🚨 <strong>P-4421 — Immediate Review Required:</strong> Tachycardia (118 bpm) with fluid output of 28 mL/hr on POD 2 post-hemicolectomy. Pattern consistent with anastomotic leak or early sepsis. Recommend surgical review within 30 minutes.</div>
+        <div class="ai-card crit">⚠ <strong>P-4418 — Deterioration Detected:</strong> Heart rate trending upward over 6 hours (88 → 104 bpm) with borderline fluid balance on POD 4. Risk score 87%. Recommend CT abdomen and surgical team notification.</div>
+        <div class="ai-card warn">💧 <strong>P-4415 — Fluid Watch:</strong> Output trending below threshold over past 4 hours. No acute deterioration yet but early intervention recommended. Monitor hourly.</div>
+        <div class="ai-card info">✦ <strong>3 patients stable.</strong> P-4412 and P-4409 recovering within expected parameters. No clinical action required at this time.</div>
+        <div class="ai-action" onclick="toast('📟','Paging surgical team for P-4421...')">✦ Page surgical team — P-4421</div>
+        <div class="ai-action" onclick="toast('📋','Generating clinical summary...')">✦ Generate clinical summary</div>
+        <div class="ai-action" onclick="toast('📊','Running 6hr trend analysis...')">✦ Show 6-hour trend analysis</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI DOCUMENTATION -->
+  <div class="page" id="page-documentation">
+    <div class="sidebar">
+      <span class="sl">Documentation</span>
+      <div class="slink active">All Notes</div>
+      <div class="slink" onclick="toast('📝','Drafts in progress')">In Progress <div class="sbadge">4</div></div>
+      <div class="slink" onclick="toast('✓','Completed notes')">Completed</div>
+      <div class="slink" onclick="toast('💻','AI-generated notes')">AI Generated</div>
+      <span class="sl">Coding</span>
+      <div class="slink" onclick="toast('🏷','ICD-10 coding queue')">ICD-10 Queue <div class="sbadge">6</div></div>
+      <div class="slink" onclick="toast('✓','Approved codes')">Approved</div>
+    </div>
+    <div class="content">
+      <div class="page-title">AI Documentation & Coding</div>
+      <div class="page-sub">Automated clinical note generation and ICD-10 coding from EHR data and sensor readings</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Notes Generated</div><div class="stat-val" style="color:var(--accent)">47</div><div class="stat-sub">this week</div></div>
+        <div class="stat"><div class="stat-label">Coding Accuracy</div><div class="stat-val" style="color:var(--green)">96%</div><div class="stat-sub">ICD-10 match rate</div></div>
+        <div class="stat"><div class="stat-label">Time Saved</div><div class="stat-val" style="color:var(--green)">3.2h</div><div class="stat-sub">per physician per day</div></div>
+        <div class="stat"><div class="stat-label">Pending Review</div><div class="stat-val" style="color:var(--amber)">6</div><div class="stat-sub">need sign-off</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">AI-Generated Post-Op Note — P-4421</div><div class="pill pill-amber">DRAFT</div></div>
+          <div style="padding:12px 14px;font-size:11px;line-height:1.8;color:var(--text-mid)">
+            <strong style="color:var(--text)">POST-OPERATIVE NOTE — POD 2</strong><br>
+            <strong style="color:var(--text)">Patient:</strong> P-4421 &nbsp;|&nbsp; <strong style="color:var(--text)">Procedure:</strong> Right Hemicolectomy<br><br>
+            <strong style="color:var(--text)">Subjective:</strong> Patient reports increased abdominal discomfort since midnight. Pain score 6/10. No nausea or vomiting reported.<br><br>
+            <strong style="color:var(--text)">Objective:</strong> HR 118 bpm (↑ from 88 at 06:00), BP 98/62, Temp 37.8°C. Urine output 28 mL/hr over past 4 hours (below 0.5 mL/kg/hr threshold). Abdomen firm on palpation. Drain output 45 mL — serosanguinous.<br><br>
+            <strong style="color:var(--text)">Assessment:</strong> <span style="color:var(--red);font-weight:600">AI flags: Pattern consistent with anastomotic leak (risk 91%). Recommend urgent surgical review.</span><br><br>
+            <strong style="color:var(--text)">Plan:</strong> CT abdomen pelvis with contrast ordered. Surgical team notified. IV fluid resuscitation initiated.
+          </div>
+          <div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:8px">
+            <button style="flex:1;padding:6px;background:var(--accent);color:white;border:none;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)" onclick="toast('✓','Note signed and filed')">Sign & File</button>
+            <button style="flex:1;padding:6px;background:var(--raised);color:var(--text-mid);border:1px solid var(--border);border-radius:5px;font-size:11px;cursor:pointer;font-family:var(--sans)" onclick="toast('✏','Opening editor...')">Edit</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">ICD-10 Auto-Coding Queue</div><div style="font-size:11px;color:var(--accent);cursor:pointer" onclick="toast('✦','Auto-approving high confidence codes...')">✦ Approve all &gt;95%</div></div>
+          <table>
+            <tr><th>Patient</th><th>AI Code</th><th>Description</th><th>Confidence</th><th>Action</th></tr>
+            <tr onclick="toast('✓','Code approved')"><td>P-4421</td><td style="font-family:var(--mono);font-size:11px">K63.1</td><td style="font-size:11px">Perforation of intestine</td><td style="font-family:var(--mono);color:var(--amber)">78%</td><td><span class="pill pill-amber">Review</span></td></tr>
+            <tr onclick="toast('✓','Code approved')"><td>P-4418</td><td style="font-family:var(--mono);font-size:11px">K57.32</td><td style="font-size:11px">Diverticulitis of lg intestine</td><td style="font-family:var(--mono);color:var(--green)">97%</td><td><span class="pill pill-green">Ready</span></td></tr>
+            <tr onclick="toast('✓','Code approved')"><td>P-4415</td><td style="font-family:var(--mono);font-size:11px">K63.0</td><td style="font-size:11px">Abscess of intestine</td><td style="font-family:var(--mono);color:var(--green)">94%</td><td><span class="pill pill-green">Ready</span></td></tr>
+            <tr onclick="toast('✓','Code approved')"><td>P-4412</td><td style="font-family:var(--mono);font-size:11px">K37</td><td style="font-size:11px">Unspecified appendicitis</td><td style="font-family:var(--mono);color:var(--green)">99%</td><td><span class="pill pill-green">Ready</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">CMx AI</div><div style="font-size:10px;color:var(--text-dim)">Documentation</div></div>
+      <div class="ai-scroll">
+        <div class="ai-card info">✦ <strong>47 notes generated this week.</strong> Average physician review time reduced to 4 minutes per note vs 22 minutes manual.</div>
+        <div class="ai-card warn">⚠ <strong>P-4421 ICD-10 code confidence low (78%).</strong> AI suggests K63.1 but anastomotic leak (K91.82) may be more appropriate pending CT results. Hold for physician review.</div>
+        <div class="ai-card info">💡 <strong>3 codes ready for auto-approval</strong> above 94% confidence threshold. Saves 18 minutes of coding review today.</div>
+        <div class="ai-action" onclick="toast('📝','Generating discharge summary...')">✦ Generate discharge summary</div>
+        <div class="ai-action" onclick="toast('🏷','Running ICD-10 batch coding...')">✦ Batch code all pending</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLINICAL ALERTS -->
+  <div class="page" id="page-alerts">
+    <div class="sidebar">
+      <span class="sl">Alerts</span>
+      <div class="slink active">All Alerts</div>
+      <div class="slink" onclick="toast('🔴','Critical alerts')">Critical <div class="sbadge">2</div></div>
+      <div class="slink" onclick="toast('🟡','Warning alerts')">Warning <div class="sbadge">3</div></div>
+      <div class="slink" onclick="toast('✓','Resolved alerts')">Resolved</div>
+      <span class="sl">Detection</span>
+      <div class="slink" onclick="toast('🔬','Deterioration patterns')">Deterioration</div>
+      <div class="slink" onclick="toast('💧','Fluid monitoring')">Fluid Balance</div>
+      <div class="slink" onclick="toast('🧪','Lab integration')">Lab Values</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Clinical Deterioration Alerts</div>
+      <div class="page-sub">AI-powered early identification of clinical deterioration from continuous physiological monitoring</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Active Alerts</div><div class="stat-val" style="color:var(--red)">5</div><div class="stat-sub">2 critical, 3 warning</div></div>
+        <div class="stat"><div class="stat-label">Avg Lead Time</div><div class="stat-val" style="color:var(--green)">4.2h</div><div class="stat-sub">before clinical event</div></div>
+        <div class="stat"><div class="stat-label">Resolved Today</div><div class="stat-val" style="color:var(--accent)">8</div><div class="stat-sub">interventions acted on</div></div>
+        <div class="stat"><div class="stat-label">False Positive Rate</div><div class="stat-val" style="color:var(--green)">6%</div><div class="stat-sub">industry-leading accuracy</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Active Clinical Alerts</div><div style="font-size:11px;color:var(--accent);cursor:pointer" onclick="toast('✦','AI triaging all alerts...')">✦ AI triage</div></div>
+        <table>
+          <tr><th>Time</th><th>Patient</th><th>Alert Type</th><th>Trigger</th><th>Lead Time</th><th>Severity</th><th>Status</th></tr>
+          <tr onclick="toast('🚨','Opening P-4421 alert detail')"><td style="font-family:var(--mono);font-size:11px">09:42</td><td><strong>P-4421</strong></td><td>Anastomotic leak</td><td>HR↑ + fluid deficit</td><td style="font-family:var(--mono)">—</td><td><span class="pill pill-red">CRITICAL</span></td><td><span class="pill pill-amber">In Review</span></td></tr>
+          <tr onclick="toast('🚨','Opening P-4418 alert detail')"><td style="font-family:var(--mono);font-size:11px">08:15</td><td><strong>P-4418</strong></td><td>Post-op sepsis</td><td>HR trend + temp</td><td style="font-family:var(--mono)">3.5h</td><td><span class="pill pill-red">CRITICAL</span></td><td><span class="pill pill-amber">In Review</span></td></tr>
+          <tr onclick="toast('⚡','Opening P-4415 alert detail')"><td style="font-family:var(--mono);font-size:11px">07:30</td><td><strong>P-4415</strong></td><td>Fluid imbalance</td><td>Output &lt; threshold</td><td style="font-family:var(--mono)">5.2h</td><td><span class="pill pill-amber">WARNING</span></td><td><span class="pill pill-blue">Monitoring</span></td></tr>
+          <tr onclick="toast('✓','Alert resolved — viewing history')"><td style="font-family:var(--mono);font-size:11px">06:00</td><td><strong>P-4407</strong></td><td>Tachycardia</td><td>HR &gt; 100 bpm</td><td style="font-family:var(--mono)">2.1h</td><td><span class="pill pill-amber">WARNING</span></td><td><span class="pill pill-green">Resolved</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">CMx AI</div><div style="font-size:10px;color:var(--text-dim)">Deterioration</div></div>
+      <div class="ai-scroll">
+        <div class="ai-card crit">🚨 <strong>P-4421 — Highest Priority:</strong> Multi-parameter deterioration pattern detected 4.2 hours ago. Tachycardia, oliguria, and low MAP combination has 91% predictive value for anastomotic complication. Surgical team must review now.</div>
+        <div class="ai-card info">💡 <strong>Average lead time 4.2 hours</strong> before clinical intervention this week. Early detection enabling earlier physician action.</div>
+        <div class="ai-card info">✦ <strong>6% false positive rate</strong> — lowest in hospital. Physician trust scores for AI alerts averaging 4.4/5.</div>
+        <div class="ai-action" onclick="toast('📊','Running deterioration forecast...')">✦ 24-hour deterioration forecast</div>
+        <div class="ai-action" onclick="toast('📧','Sending alert summary to team...')">✦ Send alert digest to care team</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT EDUCATION -->
+  <div class="page" id="page-education">
+    <div class="sidebar">
+      <span class="sl">Education</span>
+      <div class="slink active">All Patients</div>
+      <div class="slink" onclick="toast('📖','Pre-op education')">Pre-operative</div>
+      <div class="slink" onclick="toast('🏥','Post-op education')">Post-operative</div>
+      <div class="slink" onclick="toast('🏠','Discharge education')">Discharge Planning</div>
+      <span class="sl">Engagement</span>
+      <div class="slink" onclick="toast('📊','Completion rates')">Completion Rates</div>
+      <div class="slink" onclick="toast('📋','Patient surveys')">Patient Surveys</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Patient Education & Engagement</div>
+      <div class="page-sub">AI-personalized education content delivered throughout the surgical care continuum</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Completion Rate</div><div class="stat-val" style="color:var(--green)">84%</div><div class="stat-sub">education modules</div></div>
+        <div class="stat"><div class="stat-label">Satisfaction Score</div><div class="stat-val" style="color:var(--green)">4.6/5</div><div class="stat-sub">patient feedback</div></div>
+        <div class="stat"><div class="stat-label">Modules Sent</div><div class="stat-val" style="color:var(--accent)">38</div><div class="stat-sub">this week</div></div>
+        <div class="stat"><div class="stat-label">Readmissions Avoided</div><div class="stat-val" style="color:var(--green)">3</div><div class="stat-sub">estimated this month</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Patient Education Tracker</div><div style="font-size:11px;color:var(--accent);cursor:pointer" onclick="toast('✦','AI personalizing content...')">✦ Personalize all</div></div>
+        <table>
+          <tr><th>Patient</th><th>Stage</th><th>Modules Assigned</th><th>Completed</th><th>Next Module</th><th>AI Recommendation</th></tr>
+          <tr onclick="toast('📖','Opening education plan for P-4412')"><td><strong>P-4412</strong></td><td>Post-op Day 1</td><td>6</td><td style="font-family:var(--mono)">4/6</td><td>Wound care</td><td style="font-size:10px;color:var(--green)">On track</td></tr>
+          <tr onclick="toast('📖','Opening education plan for P-4409')"><td><strong>P-4409</strong></td><td>Discharge prep</td><td>8</td><td style="font-family:var(--mono)">8/8</td><td>Discharge checklist</td><td style="font-size:10px;color:var(--green)">Ready to discharge</td></tr>
+          <tr onclick="toast('📖','Opening education plan for P-4415')"><td><strong>P-4415</strong></td><td>Post-op Day 3</td><td>6</td><td style="font-family:var(--mono)">2/6</td><td>Diet progression</td><td style="font-size:10px;color:var(--amber)">Behind schedule</td></tr>
+          <tr onclick="toast('⚠','P-4421 education paused — clinical priority')"><td><strong>P-4421</strong></td><td>Post-op Day 2</td><td>6</td><td style="font-family:var(--mono)">1/6</td><td>—</td><td style="font-size:10px;color:var(--red)">Paused — clinical alert</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">CMx AI</div><div style="font-size:10px;color:var(--text-dim)">Education</div></div>
+      <div class="ai-scroll">
+        <div class="ai-card info">✦ <strong>P-4409 ready for discharge.</strong> All 8 education modules completed. Discharge summary generated. Recommend scheduling follow-up at 2 weeks post-op.</div>
+        <div class="ai-card warn">⚠ <strong>P-4415 education behind schedule.</strong> Only 2 of 6 modules completed on POD 3. Diet progression module not viewed. Recommend bedside tablet push notification.</div>
+        <div class="ai-card info">💡 <strong>Education correlated with outcomes.</strong> Patients completing &gt;75% of modules show 31% lower readmission rates in the past 6 months.</div>
+        <div class="ai-action" onclick="toast('📱','Sending reminder to P-4415...')">✦ Send reminder — P-4415</div>
+        <div class="ai-action" onclick="toast('📋','Generating discharge plan for P-4409...')">✦ Generate discharge plan — P-4409</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="statusbar">
+  <div class="sb">● CMx · FluidAI Clinical Platform · Demo</div>
+  <div class="sb">Python · TypeScript · React · LLM agents · AWS</div>
+  <div class="sb" style="margin-left:auto">Built by Jaivik Parekh · jaivikparekh1320@gmail.com</div>
+</div>
+<div class="demo-note">Built for <strong>FluidAI Medical</strong> by <strong>Jaivik Parekh</strong> · jaivikparekh1320@gmail.com</div>
+
+<script>
+function show(view, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+view).classList.add('active');
+}
+function openPatient(id) { toast('👤', 'Opening patient profile ' + id + '...'); }
+function toast(icon, msg) {
+  var ex = document.querySelector('.toast-el');
+  if(ex) ex.remove();
+  var t = document.createElement('div');
+  t.className = 'toast-el';
+  t.style.cssText = 'position:fixed;bottom:38px;right:16px;background:white;border:1px solid #E2E6EE;color:#111827;border-radius:9px;padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:12px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.1);transform:translateX(120%);transition:transform 0.3s ease;font-family:Inter,sans-serif;max-width:280px;';
+  t.innerHTML = '<span style="font-size:14px">'+icon.split(' ')[0]+'</span><span>'+msg+'</span>';
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{t.style.transform='translateX(0)';}));
+  setTimeout(()=>{t.style.transform='translateX(120%)';setTimeout(()=>t.remove(),400);},3000);
+}
+</script>
+</body>
+</html>
